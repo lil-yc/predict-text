@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import tokenizer_from_json
 
 # --------------- main.ipynb funcs ---------------
 
@@ -53,7 +54,7 @@ def load_artifacts(save_dir="predictive_text_artifacts"):
     model = tf.keras.models.load_model(os.path.join(save_dir, "model.keras"))
     with open(os.path.join(save_dir, "tokenizer.pkl"), "rb") as f:
         payload = pickle.load(f)
-    tok = Tokenizer.from_json(payload["config"])
+    tok = tokenizer_from_json(payload["config"])
     tok.num_words = payload["num_words"]
     with open(os.path.join(save_dir, "meta.json"), "r") as f:
         meta = json.load(f)
@@ -66,8 +67,15 @@ def load_artifacts(save_dir="predictive_text_artifacts"):
 st.title("Predictive Text")
 st.write("Enter a seed phrase to get next word suggestions or generate text.")
 
+model, tokenizer, meta = load_artifacts()
+
+seq_len_minus1 = meta.get("max_len", None)
+
 
 seed = st.text_input("Seed text", value="There is a")
+top_k = st.slider("Top K suggestions", min_value=1, max_value=10, value=5)
+temperature = st.slider("Temperature", min_value=0.0, max_value=2.0, value=0.8, step=0.05)
+num_words = st.slider("Words to generate", min_value=1, max_value=20, value=6)
 
 
 if st.button("Suggest next words"):
