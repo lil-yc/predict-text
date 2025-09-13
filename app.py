@@ -79,11 +79,15 @@ num_words = st.slider("Words to generate", min_value=1, max_value=20, value=6)
 
 
 if st.button("Suggest next words"):
-	
-	st.write("### Top Suggestions:")
+    suggestions = suggest_next_words(model, tokenizer, seed, seq_len_minus1, top_k=top_k, temperature=temperature)
+    st.write("### Top Suggestions:")
+    for word, prob in suggestions:  
+        st.write(f"**{word}**  (p={prob:.4f})")
 	
 
 if st.button("Generate text"):
-	
-	st.write("### Generated Text:")
+    generated = generate_text(model, tokenizer, seed, seq_len_minus1, num_words=num_words, temperature=temperature)
+    st.write("### Generated Text:")
+    st.write(generated)
+
 	
